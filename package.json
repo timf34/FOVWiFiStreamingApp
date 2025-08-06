@@ -1,5 +1,5 @@
 {
-  "name": "fovcompanionapp",
+  "name": "FOVWiFiStreamingApp",
   "version": "1.0.0",
   "main": "index.js",
   "expo": {
@@ -31,7 +31,8 @@
     "react-native": "0.76.9",
     "react-native-background-actions": "^2.6.7",
     "react-native-ble-plx": "^3.5.0",
-    "react-native-nfc-manager": "^3.16.1"
+    "react-native-nfc-manager": "^3.16.1",
+    "react-native-sse": "^1.2.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

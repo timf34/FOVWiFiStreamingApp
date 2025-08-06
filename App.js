@@ -117,11 +117,11 @@ export default function App() {
   };
   
   const handleStreamMessage = async (data) => {
-    if (!bleManagerRef.current || !bleDevice) {
+    if (!bleManagerRef.current || !bleManagerRef.current.isConnected()) {
       // Queue message if BLE not connected
       streamClientRef.current.queueMessage(data);
       setStats(prev => ({ ...prev, messagesQueued: prev.messagesQueued + 1 }));
-      return;
+      return
     }
     
     try {
@@ -201,6 +201,35 @@ export default function App() {
       setScanning(false);
     }
   };
+
+  const waitUntil = (pred, { timeoutMs = 5000, intervalMs = 50 } = {}) =>
+    new Promise((resolve, reject) => {
+      const start = Date.now();
+      const t = setInterval(() => {
+        if (pred()) { clearInterval(t); resolve(); }
+        else if (Date.now() - start > timeoutMs) { clearInterval(t); reject(new Error('timeout')); }
+      }, intervalMs);
+    });
+  
+  const drainQueuedMessages = async () => {
+    if (!bleManagerRef.current?.isConnected()) return;
+    const queued = streamClientRef.current.getQueuedMessages();
+    if (!queued.length) return;
+    for (const msg of queued) {
+      try {
+        const encoded = useBinaryProtocol ? Protocol.encodeBinary(msg)
+                                          : Protocol.encodeJson(msg);
+        await bleManagerRef.current.sendData(encoded);
+        setStats(prev => ({ ...prev, messagesSent: prev.messagesSent + 1 }));
+      } catch (e) {
+        // Put it back if something went wrong
+        streamClientRef.current.queueMessage(msg);
+        setStats(prev => ({ ...prev, lastError: e.message }));
+        break; // stop draining for now
+      }
+    }
+    streamClientRef.current.clearQueue();
+  };  
   
   const connectToDevice = async (device) => {
     try {
@@ -209,14 +238,8 @@ export default function App() {
       await bleManagerRef.current.connect(device.id);
       
       // Process queued messages after connection
-      const queued = streamClientRef.current.getQueuedMessages();
-      if (queued.length > 0) {
-        Alert.alert('Processing Queue', `Sending ${queued.length} queued messages`);
-        for (const msg of queued) {
-          await handleStreamMessage(msg);
-        }
-        streamClientRef.current.clearQueue();
-      }
+      await waitUntil(() => bleManagerRef.current?.isConnected(), { timeoutMs: 3000 }).catch(() => {});
+      await drainQueuedMessages();
     } catch (error) {
       Alert.alert('Connection Error', error.message);
     }
