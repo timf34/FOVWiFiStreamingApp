@@ -1,0 +1,85 @@
+{
+  "expo": {
+    "name": "FOVCompanionApp",
+    "slug": "FOVCompanionApp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": false,  
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.timf34.FOVConnector",  
+      "associatedDomains": [
+        "applinks:fov.ie"
+      ],
+      "bluetoothLeServices": [
+        "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
+      ],
+      "infoPlist": {
+        "NSBluetoothAlwaysUsageDescription": "This app uses Bluetooth to connect to FOV devices",
+        "NSBluetoothPeripheralUsageDescription": "This app uses Bluetooth to connect to FOV devices",
+        "NFCReaderUsageDescription": "This app uses NFC to quickly connect to FOV devices",
+        "com.apple.developer.nfc.readersession.formats": ["NDEF"],
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.timf34.FOVConnector", 
+      "permissions": [
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_ADMIN",
+        "android.permission.BLUETOOTH_CONNECT",
+        "android.permission.BLUETOOTH_SCAN",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.NFC"
+      ],
+      "intentFilters": [
+        {
+          "action": "android.nfc.action.NDEF_DISCOVERED",
+          "data": [{ "mimeType": "application/vnd.fov.device" }],
+          "category": ["android.intent.category.DEFAULT"]
+        }
+      ]
+    },
+    "plugins": [
+      [
+        "react-native-ble-plx",
+        {
+          "isBackgroundEnabled": false,
+          "modes": [
+            "peripheral",
+            "central"
+          ],
+          "bluetoothAlwaysPermission": "Allow FOVConnector to connect to FOV devices"
+        }
+      ],
+      "react-native-nfc-manager",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "swiftCompilerFlags": "-DTARGET_OS_SIMULATOR=0"
+          }
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "b1d89874-cf2e-4139-b8b9-4c7f4763d372"
+      }
+    }
+  }
+}
