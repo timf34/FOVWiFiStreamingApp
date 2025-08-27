@@ -3,15 +3,16 @@ import asyncio
 import websockets
 import json
 import time
+import random
 
 async def handler(websocket):
     print("Client connected")
     try:
         while True:
-            # Example coordinate message
+            # Example coordinate message with randomized coordinates
             message = {
-                "x": 12.34,
-                "y": 56.78,
+                "x": round(random.uniform(0, 100), 2),
+                "y": round(random.uniform(0, 100), 2),
                 "t": time.time()
             }
             await websocket.send(json.dumps(message))
